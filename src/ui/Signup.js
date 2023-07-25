@@ -21,7 +21,7 @@ export default function Signup() {
   }
 
   const formData = {
-    id: generateUniqueId(),
+    userId: generateUniqueId(),
     name: nameText,
     email: emailText,
     password: passwordText,
