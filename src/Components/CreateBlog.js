@@ -1,13 +1,36 @@
-import React, { useState } from "react";
-export default function CreateBlog() {
-  const [DescriptionText, setDescriptionText] = useState("");
+import React, { useState, useEffect } from "react";
+import { v4 as uuid } from 'uuid';
+export default function CreateBlog(props) {
+  const commingdata = props.data;
+
   const [TitleText, setTitleText] = useState("");
-  const setPostTitleText = (event) => {
-    setTitleText(event.target.value);
+  const [DescriptionText, setDescriptionText] = useState("");
+  const loggedUserID = localStorage.getItem("loggedUserID") ?? "";
+  const setPostTitleText = (e) => {
+    setTitleText(e.target.value);
   };
-  const DescriptionHandleInputChange = (event) => {
-    setDescriptionText(event.target.value);
+
+  const descriptionHandleInputChange = (e) => {
+    setDescriptionText(e.target.value);
   };
+
+  const saveBlog = () => {
+    const blogObj = {
+      userId: loggedUserID,
+      id: uuid(),
+      title: TitleText,
+      body: DescriptionText,
+      comments: [],
+    };
+    if (TitleText == "" || DescriptionText == "") {
+      alert("All field are required");
+    } else {
+      const updatedArray = [blogObj, ...commingdata];
+      localStorage.setItem("blogs", JSON.stringify(updatedArray));
+      props.fun(updatedArray);
+    }
+  };
+  
   return (
     <div style={styles.container}>
       <h2>Create Post</h2>
@@ -21,12 +44,16 @@ export default function CreateBlog() {
       <input
         type="text"
         value={DescriptionText}
-        placeholder="Write here -- Todays Toughts..."
-        onChange={DescriptionHandleInputChange}
+        placeholder="Write here -- Today's Thoughts..."
+        onChange={descriptionHandleInputChange}
         style={styles.input}
       />
-      <button type="Submit" className="btn btn-primary">
-        {" "}
+      <button
+        type="Submit"
+        className="btn btn-primary"
+        onClick={saveBlog}
+        style={styles.button}
+      >
         Submit
       </button>
     </div>

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login(props) {
   
   const navigate = useNavigate();
-
+  
   const [emailText, setEmail] = useState("");
   const [passwordText, setPassword] = useState("");
   
@@ -31,11 +31,12 @@ export default function Login(props) {
     } else {
       const index=checkEmailInArray(existingData,emailText);
       
-      if (index>0) {
+      if (index>=0) {
         if(passwordText==existingData[index].password){
           localStorage.setItem("loggedin",true);
-          props.state(existingData[index].name);
-          navigate("/home");
+          localStorage.setItem("loggedUserID",existingData[index].id)
+          props.state(existingData[index]);
+          navigate("/");
         }
         else{
           alert("Invalid Password");
