@@ -4,11 +4,10 @@ import Login from "./ui/Login";
 import Signup from "./ui/Signup";
 import Home from "./ui/Home";
 import Navbar from "./Components/Navbar";
- import ProtectedRoutes from "./Services/ProtectedRoutes";
- 
+
 
 import { Route, Routes } from "react-router-dom";
-import PageNotFound from "./ui/PageNotFound";
+import PageNotFound from "./Services/PageNotFound";
 
 export default function App() {
   const [currUser, setUser] = useState([]);
@@ -26,10 +25,12 @@ export default function App() {
           element={<Login user={currUser} state={setUserState} />}
         />
         <Route path="/signup" element={<Signup />} />
-          <Route path="/" element={<Home user={currUser} />} />
-        {/* <Route path="/" element={<ProtectedRoutes user={currUser} />}></Route> */}
+        <Route path="/" element={<Home user={currUser} />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );
+}
+
+{
 }

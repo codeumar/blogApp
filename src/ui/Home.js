@@ -3,19 +3,13 @@ import CreateBlog from "../Components/CreateBlog";
 import CommentsModal from "../Components/CommentsModal";
 import DeleteModal from "../Components/DeleteModal";
 import EditModal from "../Components/EditModal";
+import fetchDataFromApi from "../Services/Api";
 
 export default function Home() {
-  const [data, setData] = useState([]);
-  const [data2, setData2] = useState([]); // all previous blogs postes in array in lcoal storage
-  useEffect(() => {
-    const storedData = localStorage.getItem("blogs");
-    if (storedData) {
-      setData2(JSON.parse(storedData));
-    }
-  }, []);
   const [Alldata, setAllData] = useState([]);
   const [postid, setpostid] = useState("");
   const [currentpost, setcurrentpost] = useState("");
+  const [commentPostata, setCommentPostData] = useState("");
 
   const [commentModalIsOpen, setCommentModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -24,18 +18,16 @@ export default function Home() {
   const loggedUserID = localStorage.getItem("loggedUserID") ?? "";
 
   const clodeEditModal = () => {
-    setEditModalIsOpen(false);
+    setEditModalIsOpen((value)=>{value=false});
   };
   const clodeDeleteModal = () => {
-    setDeleteModalIsOpen(false);
-  };
-  const openCommentModal = () => {
-    setCommentModalIsOpen(true);
+    setDeleteModalIsOpen((value)=>{value=false});
   };
 
   const closeCommentModal = () => {
-    setCommentModalIsOpen(false);
+    setCommentModalIsOpen((value)=>{value=false});
   };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,42 +40,40 @@ export default function Home() {
     };
 
     fetchData();
-  }, []);
+  }, [commentModalIsOpen]);
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://jsonplaceholder.typicode.com/posts`
-        );
-        const jsonData = await response.json();
-        setData(jsonData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+    fetchDataFromApi(setAllData)
   }, []);
 
   return (
     <>
-      {loggedUserID ? <CreateBlog data={data2} fun={setData2}  savedata={setAllData} /> : <></>}
+      {loggedUserID ? (
+        <CreateBlog data={Alldata} fun={setAllData} savedata={setAllData} />
+      ) : (
+        <></>
+      )}
 
       <CommentsModal
         isOpen={commentModalIsOpen}
         closeModal={closeCommentModal}
+        commentPostData={commentPostata}
       />
       <DeleteModal
         isOpen={deleteModalIsOpen}
         closeModal={clodeDeleteModal}
-        id={postid}
+        id={Alldata}
       />
-      <EditModal isOpen={EditModalIsOpen} closeModal={clodeEditModal}  currpost={currentpost}/>
+      <EditModal
+        isOpen={EditModalIsOpen}
+        closeModal={clodeEditModal}
+        currpost={currentpost}
+        alldata={Alldata}
+      />
 
-      <div style={styles.container}>
+      <div className='inputBox'>
         <ul>
           {Alldata.map((item) => (
-            <div style={styles.container}>
+            <div className='inputBox'>
               <h1 key={item.userId}></h1>
               <h3>{item.title}</h3>
               <p>{item.body}</p>
@@ -96,7 +86,7 @@ export default function Home() {
                         setDeleteModalIsOpen(true);
                         setpostid(item.id);
                       }}
-                    ></i>{" "}
+                    ></i>
                     Delete
                   </>
                 ) : (
@@ -104,17 +94,24 @@ export default function Home() {
                 )}
                 <i
                   className="bi bi-card-text ms-5"
-                  onClick={openCommentModal}
-                ></i>{" "}
-                Comment
+                  onClick={() => {
+                    setCommentModalIsOpen(true);
+                    setCommentPostData(item);
+                  }}
+                >
+                  Comment
+                </i>
                 {item.userId == loggedUserID ? (
                   <>
-                    <i className="bi bi-pencil-square ms-5" onClick={() => {
+                    <i
+                      className="bi bi-pencil-square ms-5"
+                      onClick={() => {
                         setEditModalIsOpen(true);
                         setcurrentpost(item);
-                      }}>
-                        Edit
-                        </i> 
+                      }}
+                    >
+                      Edit
+                    </i>
                   </>
                 ) : (
                   <></>
@@ -124,7 +121,7 @@ export default function Home() {
           ))}
         </ul>
 
-        <ul>
+        {/* <ul>
           {data.map((item) => (
             <div style={styles.container}>
               <h1 key={item.userId}></h1>
@@ -133,17 +130,15 @@ export default function Home() {
               <div className="btn-group btn-group-toggle">
                 {item.userId == loggedUserID ? (
                   <>
-                    <i className="bi bi-trash ms-5"></i> Delete
+                    <i className="bi bi-trash ms-5">Delete</i>
                   </>
                 ) : (
                   <></>
                 )}
-                <i className="bi bi-card-text ms-5" onClick={openCommentModal}>
-                  Comment
-                </i>
+                <i className="bi bi-card-text ms-5">Comment</i>
                 {item.userId == loggedUserID ? (
                   <>
-                    <i className="bi bi-pencil-square ms-5"></i> Edit
+                    <i className="bi bi-pencil-square ms-5">Edit</i>
                   </>
                 ) : (
                   <></>
@@ -151,29 +146,9 @@ export default function Home() {
               </div>
             </div>
           ))}
-        </ul>
+        </ul> */}
       </div>
     </>
   );
 }
 
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "20px",
-    border: "1px solid #ccc",
-    borderRadius: "30px",
-    maxWidth: "800px",
-    margin: "50px auto",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    height: "100%",
-    marginBottom: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-  },
-};
